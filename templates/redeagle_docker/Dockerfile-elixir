@@ -1,0 +1,19 @@
+FROM bitwalker/alpine-elixir-phoenix:1.12
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV MIX_ENV dev
+
+RUN mkdir -p /elixir
+COPY . /elixir
+WORKDIR /elixir
+
+RUN mix deps.get
+
+RUN mix deps.compile
+
+RUN mix phx.digest
+
+EXPOSE 4000
+EXPOSE 4001
+
+CMD mix phx.server
