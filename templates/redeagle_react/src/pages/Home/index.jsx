@@ -1,9 +1,27 @@
+import React, { useState, useEffect } from "react"
+import axios from "axios"
 import PropTypes from 'prop-types'
 import PhoenixLogo from "../../phoenix.png"
 import ReactLogo from "../../logo.svg"
 import DockerLogo from "../../docker.webp"
 
 export const Home = ({ title }) => {
+	const [info, setInfo] = useState({})
+	useEffect(() => {
+		const handleRequest = async () => {
+			await axios.get("http://localhost:4000/api/info", {
+				headers: {
+					"Content-Type": 'application/json'
+				}
+			}).then(res => {
+				setInfo(res.data)
+			}).catch(error => {
+				console.log(error)
+			})
+		}
+		handleRequest()
+	}, [setInfo])
+
 	return (
 		<>
 			<header>
@@ -22,7 +40,7 @@ export const Home = ({ title }) => {
 			<main className="container">
 				<section className="phx-hero">
 					<h1>{title}</h1>
-					<p>It's not a bird and it's not a plane it's a union of the best Phoenix, React and Docker</p>
+					<p>{info?.slogan}</p>
 				</section>
 				<section className="row">
 					<article className="column">

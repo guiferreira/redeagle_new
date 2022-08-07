@@ -33,6 +33,7 @@ defmodule MixHelper do
     try do
       File.rm_rf!(path)
       File.mkdir_p!(path)
+
       File.cd!(path, fn ->
         File.touch!("mix.exs")
         function.()
@@ -66,13 +67,17 @@ defmodule MixHelper do
   def assert_file(file, match) do
     cond do
       is_list(match) ->
-        assert_file file, &(Enum.each(match, fn(m) -> assert &1 =~ m end))
+        assert_file(file, &Enum.each(match, fn m -> assert &1 =~ m end))
+
       is_binary(match) or is_struct(match, Regex) ->
-        assert_file file, &(assert &1 =~ match)
+        assert_file(file, &assert(&1 =~ match))
+
       is_function(match, 1) ->
         assert_file(file)
         match.(File.read!(file))
-      true -> raise inspect({file, match})
+
+      true ->
+        raise inspect({file, match})
     end
   end
 
@@ -90,6 +95,7 @@ defmodule MixHelper do
   def with_generator_env(app_name \\ :redeagle, new_env, fun) do
     config_before = Application.fetch_env(app_name, :generators)
     Application.put_env(app_name, :generators, new_env)
+
     try do
       fun.()
     after
@@ -103,7 +109,8 @@ defmodule MixHelper do
   def flush do
     receive do
       _ -> flush()
-    after 0 -> :ok
+    after
+      0 -> :ok
     end
   end
 end

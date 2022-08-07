@@ -3,11 +3,12 @@ defmodule Redeagle.MixProject do
 
   @version "0.1.0"
   @scm_url "https://github.com/guiferreira/redeagle_new"
-
+  @version_phoenix "1.6.11"
   def project do
     [
       app: :redeagle_new,
       version: @version,
+      version_phoenix: @version_phoenix,
       elixir: "~> 1.13",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -42,7 +43,7 @@ defmodule Redeagle.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:phx_new, "1.6.11"},
+      {:phx_new, @version_phoenix},
       {:ex_doc, "~> 0.24", only: :dev, runtime: false}
     ]
   end
