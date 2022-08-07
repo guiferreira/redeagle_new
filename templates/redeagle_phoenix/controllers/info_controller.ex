@@ -1,4 +1,4 @@
-defmodule <%= @web_namespace %>.Controller do
+defmodule <%= @web_namespace %>.InfoController do
   use <%= @web_namespace %>, :controller
 
   def info(conn, _) do
