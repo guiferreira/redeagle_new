@@ -1,4 +1,24 @@
 defmodule Mix.Tasks.Redeagle.New do
+  @moduledoc """
+  Creates a new Phoenix + React + Docker project.
+
+  It expects the path of the project as an argument.
+
+      $ mix redeagle.new PATH
+
+  A project at the given PATH will be created.
+
+  ## Installation
+
+  `mix redeagle.new` by default prompts you to fetch and install your
+  dependencies.
+
+  ## Examples
+
+      $ mix redeagle.new hello_world
+      
+  """
+
   use Mix.Task
   alias Redeagle.New.{Generator, Project, Single}
   @version Mix.Project.config()[:version]
