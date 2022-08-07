@@ -16,7 +16,7 @@ defmodule Mix.Tasks.Redeagle.New do
   ## Examples
 
       $ mix redeagle.new hello_world
-      
+
   """
 
   use Mix.Task
@@ -236,8 +236,7 @@ defmodule Mix.Tasks.Redeagle.New do
         $ docker-compose up -d api
         $ docker-compose up -d react
 
-        Now you can visit front-end [`localhost:3000`](http://localhost:3000) from your browser.
-        Your back-end is in [`localhost:4000/dashboard`](http://localhost:4000)
+        Now you can visit front-end http://localhost:3000 from your browser.
     """)
   end
 
@@ -245,8 +244,7 @@ defmodule Mix.Tasks.Redeagle.New do
     Mix.shell().info("""
     Start your Redeagle app with:
 
-        Now you can visit front-end [`localhost:3000`](http://localhost:3000) from your browser.
-        Your back-end is in [`localhost:4000/dashboard`](http://localhost:4000)
+        Now you can visit front-end http://localhost:3000 from your browser.
     """)
   end
 

@@ -27,8 +27,7 @@ defmodule Redeagle.MixProject do
       description: """
       Redeagle framework project generator.
 
-      Provides a `mix redeagle.new` task to bootstrap a new Phoenix application
-      with React and Docker.
+      Provides a `mix redeagle.new` task to bootstrap a new project: Phoenix + React + Docker.
       """
     ]
   end
