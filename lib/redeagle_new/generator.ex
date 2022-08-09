@@ -341,7 +341,7 @@ defmodule Redeagle.New.Generator do
         username: user,
         password: pass,
         hostname: "db",
-        database: {:literal, ~s|"redeagle_test\#{System.get_env("MIX_TEST_PARTITION")}"|},
+        database: {:literal, ~s|"#{app}_test\#{System.get_env("MIX_TEST_PARTITION")}"|},
         pool: Ecto.Adapters.SQL.Sandbox,
         pool_size: 10
       ],
