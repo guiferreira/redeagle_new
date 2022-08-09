@@ -69,7 +69,7 @@ defmodule Redeagle.New.Generator do
           File.mkdir_p!(target)
 
         :text ->
-          create_file(target, mod.render(name, source, project.binding), [force: true, quiet: true])
+          create_file(target, mod.render(name, source, project.binding), force: true, quiet: true)
 
         :config ->
           contents = mod.render(name, source, project.binding)
@@ -81,7 +81,7 @@ defmodule Redeagle.New.Generator do
 
         :eex ->
           contents = mod.render(name, source, project.binding)
-          create_file(target, contents, [force: true, quiet: true])
+          create_file(target, contents, force: true, quiet: true)
       end
     end
   end

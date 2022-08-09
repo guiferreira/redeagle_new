@@ -1,15 +1,15 @@
 defmodule Mix.Tasks.Redeagle.New do
   @moduledoc """
   ## RedEagle New
-  
+
   This package will provide an installer for Phoenix and React projects using Docker.
-  
+
   ## Installation
 
       $ mix archive.install hex redeagle_new
       
   ## Creating a project with Phoenix + React + Docker:
-  
+
       $ mix redeagle.new my_app
 
   """
@@ -86,7 +86,7 @@ defmodule Mix.Tasks.Redeagle.New do
     |> generator.prepare_project()
     |> Generator.put_binding()
     |> generator.generate()
-    |> prompt_to_install_docker(generator, path)
+    |> prompt_to_install_docker(path, base_path)
   end
 
   defp validate_project(%Phx.New.Project{opts: opts} = project, path) do
@@ -107,67 +107,42 @@ defmodule Mix.Tasks.Redeagle.New do
     project
   end
 
-  defp prompt_to_install_deps(%Project{} = project, generator, path_key) do
+  defp prompt_to_install_docker(%Project{} = project, path_key, base_path) do
     path = Map.fetch!(project, path_key)
-
-    install? =
-      Keyword.get_lazy(project.opts, :install, fn ->
-        Mix.shell().yes?("\nFetch and install dependencies?")
-      end)
-
-    cd_step = ["$ cd #{relative_app_path(path)}"]
-
-    maybe_cd(path, fn ->
-      mix_step = install_mix(project, install?)
-
-      if mix_step == [] and rebar_available?() do
-        cmd(project, "mix deps.compile")
-      end
-
-      print_missing_steps(cd_step ++ mix_step)
-
-      if path_key == :web_path do
-        Mix.shell().info("""
-        Your web app requires a PubSub server to be running.
-        The PubSub server is typically defined in a `mix phx.new.ecto` app.
-        If you don't plan to define an Ecto app, you must explicitly start
-        the PubSub in your supervision tree as:
-
-            {Phoenix.PubSub, name: #{inspect(project.app_mod)}.PubSub}
-        """)
-      end
-
-      print_mix_info(generator)
-    end)
-  end
-
-  defp prompt_to_install_docker(%Project{} = project, generator, path_key) do
-    path = Map.fetch!(project, path_key)
+    Mix.shell().info([:yellow, "* Warning ", :reset, "You need to have docker running on your machine!"])
+    Mix.shell().info([:yellow, "* Warning ", :reset, "Stop all your Docker projects"])
 
     install? =
       Keyword.get_lazy(project.opts, :install, fn ->
         Mix.shell().yes?(
-          "\nRun Docker commands? (You need to have docker running on your machine!)"
+          "\nRun Docker commands?"
         )
       end)
 
     if install? do
-      with {:ok} <- cmd("docker-compose build", relative_app_path(path)),
-           {:ok} <- cmd("docker-compose run --rm api mix setup", relative_app_path(path)),
-           {:ok} <- cmd("docker-compose run --rm react npm i --silent", relative_app_path(path)),
-           {:ok} <- cmd("docker-compose up -d api", relative_app_path(path)),
-           {:ok} <- cmd("docker-compose up -d react", relative_app_path(path)) do
-        print_mix_info(generator, true)
-      else
-        _ ->
-          print_mix_info(generator)
-      end
-    else
-      print_mix_info(generator)
+      cmd("docker-compose build", relative_app_path(path))
+      cmd("docker-compose run --rm api mix setup", relative_app_path(path))
+      cmd("docker-compose run --rm react npm i --silent", relative_app_path(path))
+      cmd("docker-compose up -d api", relative_app_path(path))
+      cmd("docker-compose up -d react", relative_app_path(path))
     end
+
+    print_mix_info(base_path)
   end
 
-  defp maybe_cd(path, func), do: path && File.cd!(path, func)
+  defp cmd(cmd, path) do
+    Mix.shell().info([:green, "* running ", :reset, cmd])
+
+    case Mix.shell().cmd(cmd, cd: path) do
+      0 ->
+        Mix.shell().info([:green, "* done ", :reset, cmd])
+        {:ok}
+
+      _ ->
+        Mix.shell().info([:red, "* error ", :reset, cmd])
+        {:error}
+    end
+  end
 
   defp parse_opts(argv) do
     case OptionParser.parse(argv, strict: @switches) do
@@ -182,49 +157,11 @@ defmodule Mix.Tasks.Redeagle.New do
   defp switch_to_string({name, nil}), do: name
   defp switch_to_string({name, val}), do: name <> "=" <> val
 
-  defp install_mix(project, install?) do
-    maybe_cmd(project, "mix deps.get", true, install? && hex_available?())
-  end
-
-  defp hex_available? do
-    Code.ensure_loaded?(Hex)
-  end
-
-  defp rebar_available? do
-    Mix.Rebar.rebar_cmd(:rebar3)
-  end
-
-  defp print_missing_steps(steps) do
-    Mix.shell().info("""
-
-    We are almost there! The following steps are missing:
-
-        #{Enum.join(steps, "\n    ")}
-    """)
-  end
-
-  defp print_ecto_info(Web), do: :ok
-
-  defp print_ecto_info(_gen) do
-    Mix.shell().info("""
-    Then configure your database in config/dev.exs and run:
-
-        $ mix ecto.create
-    """)
-  end
-
-  defp print_mix_info(Ecto) do
-    Mix.shell().info("""
-    You can run your app inside IEx (Interactive Elixir) as:
-
-        $ iex -S mix
-    """)
-  end
-
-  defp print_mix_info(_gen) do
+  defp print_mix_info(base_path) do
     Mix.shell().info("""
     Start your Redeagle app with:
 
+        $ cd #{base_path}
         $ docker-compose build
         $ docker-compose run --rm api mix setup
         $ docker-compose run --rm react npm i --silent
@@ -235,67 +172,10 @@ defmodule Mix.Tasks.Redeagle.New do
     """)
   end
 
-  defp print_mix_info(_gen, install?) do
-    Mix.shell().info("""
-    Start your Redeagle app with:
-
-        Now you can visit front-end http://localhost:3000 from your browser.
-    """)
-  end
-
   defp relative_app_path(path) do
     case Path.relative_to_cwd(path) do
       ^path -> Path.basename(path)
       rel -> rel
-    end
-  end
-
-  ## Helpers
-
-  defp maybe_cmd(project, cmd, should_run?, can_run?) do
-    cond do
-      should_run? && can_run? ->
-        cmd(project, cmd)
-
-      should_run? ->
-        ["$ #{cmd}"]
-
-      true ->
-        []
-    end
-  end
-
-  defp cmd(cmd, path) do
-    Mix.shell().info([:green, "* running ", :reset, cmd])
-
-    case Mix.shell().cmd(cmd, cd: path, quiet: true) do
-      0 ->
-        Mix.shell().info([:green, "* done ", :reset, cmd])
-        {:ok}
-
-      _ ->
-        Mix.shell().info([:red, "* error ", :reset, cmd])
-        {:error}
-    end
-  end
-
-  defp cmd(%Project{} = project, cmd) do
-    Mix.shell().info([:green, "* running ", :reset, cmd])
-
-    case Mix.shell().cmd(cmd, cmd_opts(project)) do
-      0 ->
-        []
-
-      _ ->
-        ["$ #{cmd}"]
-    end
-  end
-
-  defp cmd_opts(%Project{} = project) do
-    if Project.verbose?(project) do
-      []
-    else
-      [quiet: true]
     end
   end
 

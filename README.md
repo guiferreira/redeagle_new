@@ -1,17 +1,11 @@
-## mix redeagle.new
+## RedEagle New
 
-Provides `redeagle.new` installer as an archive.
+  This package will provide an installer for Phoenix and React projects using Docker.
 
-To install from Hex, run:
+  ## Installation
 
-    $ mix archive.install hex redeagle_new
+      $ mix archive.install hex redeagle_new
+      
+  ## Creating a project with Phoenix + React + Docker:
 
-To build and install it locally,
-ensure any previous archive versions are removed:
-
-    $ mix archive.uninstall redeagle_new
-
-
-## Creating a project with Phoenix + React + Docker:
-
-    $ mix redeagle.new my_app
+      $ mix redeagle.new my_app
