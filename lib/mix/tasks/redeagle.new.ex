@@ -39,16 +39,22 @@ defmodule Mix.Tasks.Redeagle.New do
   ]
 
   def run([version]) when version in ~w(-v --version) do
-    Mix.shell().info("Redeagle installer v#{@version}")
+    Mix.shell().info("RedEagle New v#{@version}")
   end
 
   def run(argv) do
     argv =
-      List.insert_at(
-        ["--no-assets", "--no-html", "--no-gettext", "--no-dashboard"],
-        0,
-        argv |> Enum.at(0)
-      )
+      case argv do
+        [] ->
+          []
+
+        _ ->
+          List.insert_at(
+            ["--no-assets", "--no-html", "--no-gettext", "--no-dashboard"],
+            0,
+            argv |> Enum.at(0)
+          )
+      end
 
     elixir_version_check!()
 
@@ -68,6 +74,15 @@ defmodule Mix.Tasks.Redeagle.New do
             File.rm("#{base_path}/config/prod.exs")
             generate_redeagle(base_path, Single, :project_path, opts)
         end
+
+      _ ->
+        Mix.shell().info("RedEagle New v#{@version}")
+
+        Mix.shell().info(
+          "This package will provide an installer for Phoenix and React projects using Docker."
+        )
+
+        Mix.shell().info("Run: mix redeagle.new my_app")
     end
   end
 
@@ -109,14 +124,19 @@ defmodule Mix.Tasks.Redeagle.New do
 
   defp prompt_to_install_docker(%Project{} = project, path_key, base_path) do
     path = Map.fetch!(project, path_key)
-    Mix.shell().info([:yellow, "* Warning ", :reset, "You need to have docker running on your machine!"])
+
+    Mix.shell().info([
+      :yellow,
+      "* Warning ",
+      :reset,
+      "You need to have docker running on your machine!"
+    ])
+
     Mix.shell().info([:yellow, "* Warning ", :reset, "Stop all your Docker projects"])
 
     install? =
       Keyword.get_lazy(project.opts, :install, fn ->
-        Mix.shell().yes?(
-          "\nRun Docker commands?"
-        )
+        Mix.shell().yes?("\nRun Docker commands?")
       end)
 
     if install? do
