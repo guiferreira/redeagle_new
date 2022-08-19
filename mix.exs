@@ -1,7 +1,7 @@
 defmodule Redeagle.MixProject do
   use Mix.Project
 
-  @version "0.1.1"
+  @version "0.1.2"
   @scm_url "https://github.com/guiferreira/redeagle_new"
   @version_phoenix "1.6.11"
   def project do

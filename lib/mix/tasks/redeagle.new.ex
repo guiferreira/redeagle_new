@@ -188,7 +188,9 @@ defmodule Mix.Tasks.Redeagle.New do
         $ docker-compose up -d api
         $ docker-compose up -d react
 
-        Now you can visit front-end http://localhost:3000 from your browser.
+        Wait for docker to process and go to:
+        Front-end http://localhost:3000 from your browser.
+        Back-end http://localhost:4000/dashboard from your browser.
     """)
   end
 
