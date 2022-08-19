@@ -11,7 +11,17 @@ defmodule <%= @web_namespace %>.Router do
 
     get("/info", InfoController, :info)
   end
- 
+
+  if Mix.env() in [:dev, :test] do
+    import Phoenix.LiveDashboard.Router
+
+    scope "/" do
+      pipe_through [:fetch_session, :protect_from_forgery]
+
+      live_dashboard "/dashboard", metrics: <%= @web_namespace %>.Telemetry
+    end
+  end
+
   # Enables the Swoosh mailbox preview in development.
   #
   # Note that preview only shows emails that were sent by the same
@@ -24,4 +34,3 @@ defmodule <%= @web_namespace %>.Router do
     end
   end
 end
-

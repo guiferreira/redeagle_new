@@ -7,7 +7,7 @@ defmodule Mix.Tasks.Redeagle.New do
   ## Installation
 
       $ mix archive.install hex redeagle_new
-      
+
   ## Creating a project with Phoenix + React + Docker:
 
       $ mix redeagle.new my_app
@@ -50,7 +50,7 @@ defmodule Mix.Tasks.Redeagle.New do
 
         _ ->
           List.insert_at(
-            ["--no-assets", "--no-html", "--no-gettext", "--no-dashboard"],
+            ["--no-assets", "--no-html"],
             0,
             argv |> Enum.at(0)
           )
